@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns, FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 -- |
 -- Module    : Statistics.Transform
 -- Copyright : (c) 2011 Bryan O'Sullivan
