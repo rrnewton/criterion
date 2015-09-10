@@ -1,0 +1,7 @@
+flags: {}
+packages:
+- '.'
+- examples/
+extra-deps:
+- critbit-0.2.0.0
+resolver: lts-3.4
