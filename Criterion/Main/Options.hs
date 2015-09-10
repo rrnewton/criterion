@@ -70,6 +70,7 @@ defaultConfig = Config {
     , resamples    = 1000
     , regressions  = []
     , rawDataFile  = Nothing
+    , showDataFile = Nothing
     , reportFile   = Nothing
     , csvFile      = Nothing
     , junitFile    = Nothing
@@ -116,6 +117,8 @@ config Config{..} = Config
              help "Regressions to perform"))
   <*> outputOption rawDataFile (long "raw" <>
                                 help "File to write raw data to")
+  <*> outputOption showDataFile (long "show" <>
+                                 help "File to write full data with Show")
   <*> outputOption reportFile (long "output" <> short 'o' <>
                                help "File to write report to")
   <*> outputOption csvFile (long "csv" <>

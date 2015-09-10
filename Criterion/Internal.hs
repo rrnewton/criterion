@@ -40,7 +40,7 @@ import Data.Vector (Vector)
 import Statistics.Resampling.Bootstrap (Estimate(..))
 import System.Directory (getTemporaryDirectory, removeFile)
 import System.IO (IOMode(..), SeekMode(..), hClose, hSeek, openBinaryFile,
-                  openBinaryTempFile)
+                  openBinaryTempFile, openTempFile, openFile, hPutStrLn)
 import Text.Printf (printf)
 
 -- | Run a single benchmark.
@@ -111,7 +111,8 @@ runAndAnalyse :: (String -> Bool) -- ^ A predicate that chooses
               -> Benchmark
               -> Criterion ()
 runAndAnalyse select bs = do
-  mbRawFile <- asks rawDataFile
+  mbRawFile  <- asks rawDataFile
+  mbShowFile <- asks showDataFile -- Parallels rawDataFile
   (rawFile, handle) <- liftIO $
     case mbRawFile of
       Nothing -> do
@@ -120,12 +121,34 @@ runAndAnalyse select bs = do
       Just file -> do
         handle <- openBinaryFile file ReadWriteMode
         return (file, handle)
+  (showFile, showHandle) <- liftIO $
+    case mbShowFile of
+      Nothing -> do
+        tmpDir <- getTemporaryDirectory
+        openTempFile tmpDir "criterion_dat.txt"
+      Just file -> do
+        handle <- openFile file ReadWriteMode
+        return (file, handle)
   liftIO $ L.hPut handle header
 
   for select bs $ \idx desc bm -> do
     _ <- note "benchmarking %s\n" desc
     rpt <- runAndAnalyseOne idx desc bm
+    liftIO $ print rpt -- hPutStrLn showHandle (show rpt)
+    _ <- note " WROTE out show data %s \n" desc
+    liftIO $ print (read (show rpt) :: Report)
+
     liftIO $ L.hPut handle (encode rpt)
+
+  -- rpts <- (either fail return =<<) . liftIO $ do
+  --   hSeek handle AbsoluteSeek 0
+  --   rs <- fmap (map (\(Analysed r) -> r)) <$> hGetRecords handle
+  --   hClose handle
+  --   case mbRawFile of
+  --     Just _ -> return rs
+  --     _      -> removeFile rawFile >> return rs
+
+  liftIO $ hClose showHandle
 
   rpts <- (either fail return =<<) . liftIO $ do
     hSeek handle AbsoluteSeek 0

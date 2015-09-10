@@ -101,6 +101,9 @@ data Config = Config {
       -- ^ Number of resamples to perform when bootstrapping.
     , regressions  :: [([String], String)]
       -- ^ Regressions to perform.
+    , showDataFile :: Maybe FilePath
+      -- ^ File to write measurement and analysis data to.
+      --   In contrast with rawDataFile, this uses Report's Show instance.
     , rawDataFile  :: Maybe FilePath
       -- ^ File to write binary measurement and analysis data to.  If
       -- not specified, this will be a temporary file.
